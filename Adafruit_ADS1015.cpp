@@ -213,6 +213,71 @@ uint16_t Adafruit_ADS1015::readADC_SingleEnded(uint8_t channel) {
 
 /**************************************************************************/
 /*!
+    @brief  Configure continuous single-ended ADC reading from the specified channel
+
+    @param channel ADC channel to configure
+
+    @return success
+*/
+/**************************************************************************/
+uint16_t Adafruit_ADS1015::configSingleEnded_continuous(uint8_t channel) {
+  if (channel > 3) {
+    return 0;
+  }
+
+  // Start with default values
+  uint16_t config =
+      ADS1015_REG_CONFIG_CQUE_NONE |    // Disable the comparator (default val)
+      ADS1015_REG_CONFIG_CLAT_NONLAT |  // Non-latching (default val)
+      ADS1015_REG_CONFIG_CPOL_ACTVLOW | // Alert/Rdy active low   (default val)
+      ADS1015_REG_CONFIG_CMODE_TRAD |   // Traditional comparator (default val)
+      ADS1015_REG_CONFIG_DR_3300SPS |   // 1600 samples per second (default)
+      ADS1015_REG_CONFIG_MODE_CONTIN;   // Single-shot mode (default)
+
+  // Set PGA/voltage range
+  config |= m_gain;
+
+  // Set single-ended input channel
+  switch (channel) {
+  case (0):
+    config |= ADS1015_REG_CONFIG_MUX_SINGLE_0;
+    break;
+  case (1):
+    config |= ADS1015_REG_CONFIG_MUX_SINGLE_1;
+    break;
+  case (2):
+    config |= ADS1015_REG_CONFIG_MUX_SINGLE_2;
+    break;
+  case (3):
+    config |= ADS1015_REG_CONFIG_MUX_SINGLE_3;
+    break;
+  }
+
+  // Set 'start single-conversion' bit
+  config |= ADS1015_REG_CONFIG_OS_SINGLE;
+
+  // Write config register to the ADC
+  writeRegister(m_i2cAddress, ADS1015_REG_POINTER_CONFIG, config);
+  return 1;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Read continuous single-ended ADC reading
+
+    @param none
+
+    @return reading
+*/
+/**************************************************************************/
+uint16_t Adafruit_ADS1015::readADC_SingleEnded_continuous(void) {
+  // Read the conversion results
+  // Shift 12-bit results right 4 bits for the ADS1015
+  return readRegister(m_i2cAddress, ADS1015_REG_POINTER_CONVERT) >> m_bitShift;
+}
+
+/**************************************************************************/
+/*!
     @brief  Reads the conversion results, measuring the voltage
             difference between the P (AIN0) and N (AIN1) input.  Generates
             a signed value since the difference can be either
