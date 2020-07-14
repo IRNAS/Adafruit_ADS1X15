@@ -135,7 +135,19 @@ Adafruit_ADS1115::Adafruit_ADS1115(uint8_t i2cAddress) {
     @brief  Sets up the HW (reads coefficients values, etc.)
 */
 /**************************************************************************/
-void Adafruit_ADS1015::begin() { Wire.begin(); }
+boolean Adafruit_ADS1015::begin() { 
+  Wire.begin(); 
+    // Comparing with expected value
+  if(0xffff!=readRegister(m_i2cAddress, ADS1015_REG_POINTER_CONFIG))
+  {
+      Serial.println(readRegister(m_i2cAddress, ADS1015_REG_POINTER_CONFIG),HEX);
+      return true;
+  }
+  else
+  {
+      return false;
+  }
+}
 
 /**************************************************************************/
 /*!

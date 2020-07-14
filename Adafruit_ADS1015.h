@@ -150,7 +150,7 @@ protected:
 
 public:
   Adafruit_ADS1015(uint8_t i2cAddress = ADS1015_ADDRESS);
-  void begin(void);
+  boolean begin(void);
   uint16_t readADC_SingleEnded(uint8_t channel);
   uint16_t configSingleEnded_continuous(uint8_t channel);
   uint16_t readADC_SingleEnded_continuous(void);
